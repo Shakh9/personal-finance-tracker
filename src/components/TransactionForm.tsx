@@ -1,7 +1,7 @@
 import type { Transaction } from '../types/transaction';
 import { useTransactionStore } from '../store/transactionStore';
 import { useForm } from 'react-hook-form';
-import { readonly, z } from 'zod';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 type TransactionFormValues = {
