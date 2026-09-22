@@ -1,11 +1,9 @@
-import type { Transaction } from '../types/transaction';
 import TransactionItem from './TransactionItem';
+import { useTransactionStore } from '../store/transactionStore';
 
-type TransactionListProps = {
-  transactions: Transaction[];
-};
+function TransactionList() {
+  const transactions = useTransactionStore((state) => state.transactions);
 
-function TransactionList({ transactions }: TransactionListProps) {
   return (
     <section>
       <h2>Транзакции</h2>
