@@ -3,6 +3,7 @@ import { useTransactionStore } from '../store/transactionStore';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 
 type TransactionFormValues = {
   amount: string;
@@ -11,6 +12,11 @@ type TransactionFormValues = {
   date: string;
   isPlanned: boolean;
   type: 'income' | 'expense';
+};
+
+type TransactionFormProps = {
+  editingTransaction: Transaction | null;
+  onFinishEditing: () => void;
 };
 
 const transactionSchema = z.object({
@@ -25,14 +31,21 @@ const transactionSchema = z.object({
   type: z.enum(['income', 'expense']),
 });
 
-function TransactionForm() {
+function TransactionForm({
+  editingTransaction,
+  onFinishEditing,
+}: TransactionFormProps) {
   const addTransaction = useTransactionStore((state) => state.addTransaction);
+  const updateTransaction = useTransactionStore(
+    (state) => state.updateTransaction,
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
@@ -41,31 +54,62 @@ function TransactionForm() {
     },
   });
 
+  useEffect(() => {
+    if (!editingTransaction) {
+      return;
+    }
+
+    setValue('amount', String(editingTransaction.amount));
+    setValue('category', editingTransaction.category);
+    setValue('description', editingTransaction.description);
+    setValue('date', editingTransaction.date);
+    setValue('isPlanned', editingTransaction.isPlanned);
+    setValue('type', editingTransaction.type);
+  }, [editingTransaction, setValue]);
+
   return (
     <form
       onSubmit={handleSubmit((data) => {
-        const newTransaction: Transaction = {
-          id: crypto.randomUUID(),
-          type: data.type,
-          amount: Number(data.amount),
-          category: data.category,
-          description: data.description,
-          date: data.date,
-          isPlanned: data.isPlanned,
-        };
+        if (editingTransaction) {
+          const updatedTransaction: Transaction = {
+            id: editingTransaction.id,
+            type: data.type,
+            amount: Number(data.amount),
+            category: data.category,
+            description: data.description,
+            date: data.date,
+            isPlanned: data.isPlanned,
+          };
 
-        addTransaction(newTransaction);
+          updateTransaction(updatedTransaction);
+          onFinishEditing();
+        } else {
+          const newTransaction: Transaction = {
+            id: crypto.randomUUID(),
+            type: data.type,
+            amount: Number(data.amount),
+            category: data.category,
+            description: data.description,
+            date: data.date,
+            isPlanned: data.isPlanned,
+          };
+
+          addTransaction(newTransaction);
+        }
+
         reset();
       })}
     >
-      <h2>Добавить операцию</h2>
+      <h2>
+        {editingTransaction ? 'Редактировать операцию' : 'Добавить операцию'}
+      </h2>
 
       <div>
-        <label htmlFor="">
+        <label>
           <input type="radio" value="income" {...register('type')} /> Доход
         </label>
 
-        <label htmlFor="">
+        <label>
           <input type="radio" value="expense" {...register('type')} /> Расход
         </label>
       </div>
@@ -99,7 +143,21 @@ function TransactionForm() {
         Запланированная операция
       </label>
 
-      <button type="submit">Добавить</button>
+      <button type="submit">
+        {editingTransaction ? 'Сохранить изменения' : 'Добавить'}
+      </button>
+
+      {editingTransaction && (
+        <button
+          type="button"
+          onClick={() => {
+            onFinishEditing();
+            reset();
+          }}
+        >
+          Отмена
+        </button>
+      )}
     </form>
   );
 }

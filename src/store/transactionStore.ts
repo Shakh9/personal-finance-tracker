@@ -4,6 +4,8 @@ import type { Transaction } from '../types/transaction';
 type TransactionStore = {
   transactions: Transaction[];
   addTransaction: (transaction: Transaction) => void;
+  deleteTransaction: (id: string) => void;
+  updateTransaction: (transaction: Transaction) => void;
 };
 
 const initialTransactions: Transaction[] = [
@@ -49,6 +51,7 @@ function getInitialTransactions(): Transaction[] {
     if (!Array.isArray(parsedTransactions)) {
       return initialTransactions;
     }
+
     return parsedTransactions as Transaction[];
   } catch {
     return initialTransactions;
@@ -61,6 +64,38 @@ export const useTransactionStore = create<TransactionStore>((set) => ({
   addTransaction: (transaction) => {
     set((state) => {
       const transactions = [...state.transactions, transaction];
+
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+
+      return {
+        transactions,
+      };
+    });
+  },
+
+  deleteTransaction: (id) => {
+    set((state) => {
+      const transactions = state.transactions.filter(
+        (transaction) => transaction.id !== id,
+      );
+
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+
+      return {
+        transactions,
+      };
+    });
+  },
+
+  updateTransaction: (transaction) => {
+    set((state) => {
+      const transactions = state.transactions.map((currentTransaction) => {
+        if (currentTransaction.id === transaction.id) {
+          return transaction;
+        }
+
+        return currentTransaction;
+      });
 
       localStorage.setItem('transactions', JSON.stringify(transactions));
 
