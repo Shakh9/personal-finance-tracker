@@ -5,6 +5,7 @@ import TransactionList from './components/TransactionList';
 import TransactionForm from './components/TransactionForm';
 import { useState } from 'react';
 import type { Transaction } from './types/transaction';
+import Statistics from './components/Statistics/Statistics';
 
 function App() {
   const [editingTransaction, setEditingTransaction] =
@@ -18,6 +19,8 @@ function App() {
         <Balance />
 
         <TransactionList onEdit={setEditingTransaction} />
+
+        <Statistics />
 
         <TransactionForm
           editingTransaction={editingTransaction}

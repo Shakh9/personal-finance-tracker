@@ -1,17 +1,16 @@
 import { useTransactionStore } from '../store/transactionStore';
+import {
+  calculateBalance,
+  calculateTotalExpenses,
+  calculateTotalIncome,
+} from '../utils/transactionCalculations';
 
 function Balance() {
   const transactions = useTransactionStore((state) => state.transactions);
 
-  const totalExpenses = transactions
-    .filter((transaction) => transaction.type === 'expense')
-    .reduce((total, transaction) => total + transaction.amount, 0);
-
-  const totalIncomes = transactions
-    .filter((transaction) => transaction.type === 'income')
-    .reduce((total, transaction) => total + transaction.amount, 0);
-
-  const balance = totalIncomes - totalExpenses;
+  const totalExpenses = calculateTotalExpenses(transactions);
+  const totalIncomes = calculateTotalIncome(transactions);
+  const balance = calculateBalance(transactions);
 
   return (
     <section>
