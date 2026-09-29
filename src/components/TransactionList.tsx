@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { Transaction } from '../types/transaction';
 import TransactionItem from './TransactionItem';
 import { useTransactionStore } from '../store/transactionStore';
+import { useLanguageStore } from '../store/languageStore';
+import { getTranslations } from '../utils/translations';
 
 type TransactionListProps = {
   onEdit: (transaction: Transaction) => void;
@@ -15,6 +17,9 @@ type PlannedFilter = 'all' | 'planned' | 'unplanned';
 
 function TransactionList({ onEdit }: TransactionListProps) {
   const transactions = useTransactionStore((state) => state.transactions);
+
+  const language = useLanguageStore((state) => state.language);
+  const t = getTranslations(language);
 
   const [filter, setFilter] = useState<TransactionFilter>('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -56,60 +61,130 @@ function TransactionList({ onEdit }: TransactionListProps) {
   });
 
   return (
-    <section>
-      <h2>Транзакции</h2>
+    <section className="transactions-section">
+      <div className="transactions-section__header">
+        <div>
+          <p className="section-eyebrow">{t.transactions.eyebrow}</p>
+          <h2>{t.transactions.title}</h2>
+        </div>
 
-      <div>
-        <button onClick={() => setFilter('all')}>Все</button>
-
-        <button onClick={() => setFilter('income')}>Доходы</button>
-
-        <button onClick={() => setFilter('expense')}>Расходы</button>
+        <span className="transactions-count">{sortedTransactions.length}</span>
       </div>
 
-      <div>
-        <select
-          value={categoryFilter}
-          onChange={(event) => setCategoryFilter(event.target.value)}
-        >
-          <option value="all">Все категории</option>
+      <div className="transaction-filters">
+        <div className="transaction-filter-tabs">
+          <button
+            type="button"
+            className={filter === 'all' ? 'is-active' : ''}
+            onClick={() => setFilter('all')}
+          >
+            {t.transactions.all}
+          </button>
 
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
+          <button
+            type="button"
+            className={filter === 'income' ? 'is-active' : ''}
+            onClick={() => setFilter('income')}
+          >
+            {t.transactions.income}
+          </button>
 
-        <select
-          value={plannedFilter}
-          onChange={(event) =>
-            setPlannedFilter(event.target.value as PlannedFilter)
-          }
-        >
-          <option value="all">Все операции</option>
-          <option value="planned">Запланированные</option>
-          <option value="unplanned">Незапланированные</option>
-        </select>
+          <button
+            type="button"
+            className={filter === 'expense' ? 'is-active' : ''}
+            onClick={() => setFilter('expense')}
+          >
+            {t.transactions.expenses}
+          </button>
+        </div>
 
-        <select
-          value={sortOption}
-          onChange={(event) => setSortOption(event.target.value as SortOption)}
-        >
-          <option value="date-desc">Новые сначала</option>
-          <option value="date-asc">Старые сначала</option>
-          <option value="amount-desc">Сначала большие суммы</option>
-          <option value="amount-asc">Сначала маленькие суммы</option>
-        </select>
+        <div className="transaction-filter-selects">
+          <label>
+            <span>{t.transactions.category}</span>
+
+            <select
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+            >
+              <option value="all">{t.transactions.allCategories}</option>
+
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span>{t.transactions.planning}</span>
+
+            <select
+              value={plannedFilter}
+              onChange={(event) =>
+                setPlannedFilter(event.target.value as PlannedFilter)
+              }
+            >
+              <option value="all">{t.transactions.allOperations}</option>
+
+              <option value="planned">{t.transactions.planned}</option>
+
+              <option value="unplanned">{t.transactions.unplanned}</option>
+            </select>
+          </label>
+
+          <label>
+            <span>{t.transactions.sorting}</span>
+
+            <select
+              value={sortOption}
+              onChange={(event) =>
+                setSortOption(event.target.value as SortOption)
+              }
+            >
+              <option value="date-desc">{t.transactions.newestFirst}</option>
+
+              <option value="date-asc">{t.transactions.oldestFirst}</option>
+
+              <option value="amount-desc">{t.transactions.largestFirst}</option>
+
+              <option value="amount-asc">{t.transactions.smallestFirst}</option>
+            </select>
+          </label>
+        </div>
       </div>
 
-      {sortedTransactions.map((transaction) => (
-        <TransactionItem
-          key={transaction.id}
-          transaction={transaction}
-          onEdit={onEdit}
-        />
-      ))}
+      <div className="transactions-list">
+        {transactions.length === 0 ? (
+          <div className="transactions-empty">
+            <div className="transactions-empty__icon" aria-hidden="true">
+              ◈
+            </div>
+
+            <h3>{t.transactions.emptyTitle}</h3>
+
+            <p>{t.transactions.emptyDescription}</p>
+          </div>
+        ) : sortedTransactions.length === 0 ? (
+          <div className="transactions-empty">
+            <div className="transactions-empty__icon" aria-hidden="true">
+              ⌕
+            </div>
+
+            <h3>{t.transactions.noResultsTitle}</h3>
+
+            <p>{t.transactions.noResultsDescription}</p>
+          </div>
+        ) : (
+          sortedTransactions.map((transaction) => (
+            <TransactionItem
+              key={transaction.id}
+              transaction={transaction}
+              onEdit={onEdit}
+            />
+          ))
+        )}
+      </div>
     </section>
   );
 }

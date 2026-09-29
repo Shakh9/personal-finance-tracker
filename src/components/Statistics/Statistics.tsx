@@ -1,17 +1,34 @@
+import { useLanguageStore } from '../../store/languageStore';
+import { getTranslations } from '../../utils/translations';
 import ExpenseByCategory from './ExpenseByCategory';
 import IncomeVsExpenses from './IncomeVsExpense';
 import ExpenseDynamics from './ExpenseDynamics';
 
 function Statistics() {
+  const language = useLanguageStore((state) => state.language);
+  const t = getTranslations(language);
+
   return (
-    <section>
-      <h2>Статистика</h2>
+    <section className="statistics-section">
+      <div className="statistics-section__header">
+        <div>
+          <p className="section-eyebrow">{t.statistics.eyebrow}</p>
 
-      <ExpenseByCategory />
+          <h2>{t.statistics.title}</h2>
 
-      <IncomeVsExpenses />
+          <p className="statistics-section__description">
+            {t.statistics.description}
+          </p>
+        </div>
+      </div>
 
-      <ExpenseDynamics />
+      <div className="statistics-grid">
+        <ExpenseByCategory />
+
+        <IncomeVsExpenses />
+
+        <ExpenseDynamics />
+      </div>
     </section>
   );
 }
