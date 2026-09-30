@@ -6,6 +6,7 @@ import { useLanguageStore } from '../store/languageStore';
 import { getTranslations } from '../utils/translations';
 
 type TransactionListProps = {
+  onAdd: () => void;
   onEdit: (transaction: Transaction) => void;
 };
 
@@ -15,7 +16,7 @@ type SortOption = 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc';
 
 type PlannedFilter = 'all' | 'planned' | 'unplanned';
 
-function TransactionList({ onEdit }: TransactionListProps) {
+function TransactionList({ onAdd, onEdit }: TransactionListProps) {
   const transactions = useTransactionStore((state) => state.transactions);
 
   const language = useLanguageStore((state) => state.language);
@@ -68,7 +69,14 @@ function TransactionList({ onEdit }: TransactionListProps) {
           <h2>{t.transactions.title}</h2>
         </div>
 
-        <span className="transactions-count">{sortedTransactions.length}</span>
+        <button
+          type="button"
+          className="transactions-section__add"
+          onClick={onAdd}
+        >
+          <span aria-hidden="true">+ </span>
+          {t.form.add}
+        </button>
       </div>
 
       <div className="transaction-filters">

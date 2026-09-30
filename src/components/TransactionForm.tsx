@@ -145,10 +145,6 @@ function TransactionForm({
               : t.form.newDescription}
           </p>
         </div>
-
-        <div className="transaction-form__header-icon" aria-hidden="true">
-          {editingTransaction ? '✎' : '+'}
-        </div>
       </div>
 
       <div className="transaction-form__body">

@@ -42,7 +42,7 @@ function ExpenseDynamics() {
         </div>
       ) : (
         <div className="statistics-chart">
-          <ResponsiveContainer width={500} height={300}>
+          <ResponsiveContainer width={1200} height={300}>
             <LineChart
               data={expensesByDate}
               margin={{
